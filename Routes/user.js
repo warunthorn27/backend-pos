@@ -9,6 +9,7 @@ const {
   update,
   removeall,
   createUsersendEmail,
+  createAdminsendEmail,
 } = require("../Controllers/user");
 
 router.get("/user", list);
@@ -17,7 +18,9 @@ router.get("/user/:id", read);
 
 router.post("/user", createUser);
 
-router.post("/userE", createUsersendEmail);
+router.post("/userU", createUsersendEmail);
+
+router.post("/userA", createAdminsendEmail);
 
 router.put("/user/:id", update);
 

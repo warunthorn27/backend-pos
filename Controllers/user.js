@@ -1,67 +1,154 @@
 const User = require("../models/User");
+const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
 require("dotenv").config();
 
 exports.createUser = async (req, res) => {
-  //   try {
-  //     // const admin_id = req.user.id; // token
-  //     // const admin = await User.findById(admin_id);
-
-  //     // if (!admin) return res.status(404).send("Manager not found");
-  //     // if (admin.role !== "manager") return res.status(403).send("Not allowed");
-
-  //     const { user_name, user_email, phone, permission_id } = req.body;
-
-  //     //const comp_id = admin.comp_id;
-
-  //     // 1) Check user limit (max 3)
-  //     const count = await User.countDocuments();
-  //     if (count >= 4) {
-  //       return res.status(400).send("This company already has 3 employees");
-  //     }
-
-  //     // 2) Check duplicate username/email
-  //     const exists = await User.findOne({
-  //       $or: [{ user_name }, { user_email }],
-  //     });
-
-  //     if (exists) {
-  //       return res.status(400).send("Username or Email already exists");
-  //     }
-
-  //     // 5) Save employee
-  //     const newUser = new User({
-  //       user_name,
-  //       user_email,
-  //       user_password: hashed,
-  //       permission_id,
-  //       comp_id,
-  //     });
-
-  //     await newUser.save();
-
-  //     return res.json({
-  //       message: "Employee created",
-  //       tempPassword: tempPass, // ส่งให้ admin เอาไปบอกพนักงาน
-  //     });
-  //   } catch (error) {
-  //     console.log(error);
-  //     return res.status(500).send("Server error");
-  //   }
-
   try {
-    console.log(req.body);
-    const usered = await new User(req.body).save();
-    res.send(usered);
-  } catch (error) {
-    console.log(error);
-    res.status(500).send("Server error");
+    const { user_name, user_email, user_password, user_phone, comp_id } =
+      req.body;
+
+    // 1.Limited to no more than 3 per company
+    const countUsers = await User.countDocuments({ comp_id });
+
+    if (countUsers >= 3) {
+      return res.status(400).json({
+        error: "บริษัทนี้มีพนักงานครบ 3 คนแล้ว",
+      });
+    }
+
+    // 2.CHECK Duplicate Email or Username
+
+    const exists = await User.findOne({
+      $or: [{ user_email }, { user_name }],
+    });
+
+    if (exists) {
+      return res.status(400).json({ error: "user นี้มีอยู่แล้ว" });
+    }
+
+    // 3.Create User in MongoDB
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(user_password, salt);
+    console.log(hashedPassword);
+    const newUser = await User.create({
+      user_name,
+      user_email,
+      user_password: hashedPassword,
+      user_phone,
+      //   permission_id,
+      comp_id,
+      status: true,
+    });
+    return res.status(200).json({
+      message: "User created",
+      newUser,
+    });
+  } catch (err) {
+    console.log("Server Error:", err);
+    res.status(500).json({ error: "Server error" });
   }
 };
 
 exports.createUsersendEmail = async (req, res) => {
   try {
-    const { user_name, user_email } = req.body;
+    const { user_name, user_email, user_password, user_phone, comp_id } =
+      req.body;
+
+    // 1.Limited to no more than 3 per company
+    const countUsers = await User.countDocuments({ comp_id });
+
+    if (countUsers >= 3) {
+      return res.status(400).json({
+        error: "บริษัทนี้มีพนักงานครบ 3 คนแล้ว",
+      });
+    }
+
+    // 2. CHECK Duplicate Email or Username
+    const exists = await User.findOne({
+      $or: [{ user_email }, { user_name }],
+    });
+
+    if (exists) {
+      return res.status(400).json({ error: "user นี้มีอยู่แล้ว" });
+    }
+
+    // 3) Create User in MongoDB
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(user_password, salt);
+    console.log(hashedPassword);
+    const newUser = await User.create({
+      user_name,
+      user_email,
+      user_password: hashedPassword,
+      user_phone,
+      //   permission_id,
+      comp_id,
+      status: true,
+    });
+
+    // 4.Send Email
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: user_email,
+      subject: `User Email and Password for ${user_name}`,
+      text: `
+Hello ${user_name},
+------------------
+ USER ACCOUNT INFO
+------------------
+Username : ${newUser.user_name}
+Email    : ${newUser.user_email}
+Password : ${user_password}
+Status   : ${newUser.status ? "Active" : "Inactive"}
+Created  : ${newUser.createdAt}
+
+Thank You.
+      `,
+    };
+
+    transporter.sendMail(mailOptions, (err, info) => {
+      if (err) {
+        console.error("Error sending email:", err);
+        return res.status(500).json({ error: "Error sending email" });
+      }
+
+      console.log("Email sent:", info.response);
+
+      return res.status(200).json({
+        message: "User created & email sent successfully",
+        newUser,
+      });
+    });
+  } catch (err) {
+    console.log("Server Error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+exports.createAdminsendEmail = async (req, res) => {
+  try {
+    const { user_name, user_email, user_password } = req.body;
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(user_password, salt);
+    console.log(hashedPassword);
+    const newUser = await User.create({
+      user_name,
+      user_email,
+      user_password: hashedPassword,
+      status: true,
+    });
 
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -74,8 +161,20 @@ exports.createUsersendEmail = async (req, res) => {
     const mailOptions = {
       from: process.env.EMAIL,
       to: user_email,
-      subject: `New account created for ${user_name}`,
-      text: `Your account has been created successfully.`,
+      subject: `New Admin created for ${user_name}`,
+      text: `
+Hello ${user_name},
+------------------
+ Admin ACCOUNT INFO
+------------------
+Username : ${newUser.user_name}
+Email    : ${newUser.user_email}
+Password : ${user_password}
+Status   : ${newUser.status ? "Active" : "Inactive"}
+Created  : ${newUser.createdAt}
+
+Thank You.
+      `,
     };
 
     transporter.sendMail(mailOptions, (err, info) => {
