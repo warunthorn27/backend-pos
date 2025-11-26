@@ -19,26 +19,36 @@ const {
 
 router.get("/user", auth, list);
 
-router.get("/user/:id", auth, getOneUser);
+router.get("/getone-user/:id", auth, getOneUser);
 
-router.get("/userR/:id", auth, getUserRole);
+router.get("/getrole-user/:id", auth, getUserRole);
 
-router.post("/user", auth, adminCheck, createUser);
+router.post("/create-user", auth, adminCheck, createUser);
 
-router.post("/userU", auth, adminCheck, createUsersendEmail);
+router.post("/createandsend-user", auth, adminCheck, createUsersendEmail);
 
-router.put("/user/:id", auth, adminCheck, updateUserByAdmin);
+router.put("/update-user-byadmin/:id", auth, adminCheck, updateUserByAdmin);
 
-router.put("/userU/:id", auth, updateUserbyuser);
+router.put("/update-user-byuser/:id", auth, updateUserbyuser);
 
-router.put("/userR/:id", auth, adminCheck, resetPassUserbyAdmin);
+router.put(
+  "/resetpass-user-byadmin/:id",
+  auth,
+  adminCheck,
+  resetPassUserbyAdmin
+);
 
-router.put("/userRS/:id", auth, adminCheck, resetPassUserbyAdmin_send);
+router.put(
+  "/resetpass-user-byadminsend/:id",
+  auth,
+  adminCheck,
+  resetPassUserbyAdmin_send
+);
 
-router.put("/userCS/:id", auth, adminCheck, changeStatus);
+router.put("/changestatus-user/:id", auth, adminCheck, changeStatus);
 
-router.delete("/user/:id", auth, adminCheck, remove);
+router.delete("/user/:id", auth, adminCheck, remove); //cancel
 
-router.delete("/user", auth, adminCheck, removeAll);
+router.delete("/user", auth, adminCheck, removeAll); //cancel
 
 module.exports = router;

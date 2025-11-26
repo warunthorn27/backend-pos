@@ -12,12 +12,12 @@ const {
 
 router.get("/comp", list);
 
-router.get("/comp/:id", getOneCompany);
+router.get("/getone-comp/:id", getOneCompany);
 
-router.post("/comp", auth, adminCheck, createCompany);
+router.post("/create-comp", auth, adminCheck, createCompany);
 
-router.put("/comp/:id", auth, adminCheck, updateCompany);
+router.put("/update-comp/:id", auth, adminCheck, updateCompany);
 
-router.delete("/comp/:id", auth, adminCheck, removeOneCompany); //ถ้าลบหายยกบอเลยนะ
+router.delete("/remove-comp/:id", auth, adminCheck, removeOneCompany); //ถ้าลบหายยกบอเลยนะ
 
 module.exports = router;

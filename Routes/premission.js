@@ -12,14 +12,14 @@ const {
 
 router.get("/permission", list);
 
-router.get("/permission/:id", getOnePermission);
+router.get("/getone-permission/:id", getOnePermission);
 
-router.post("/permission", createPermission);
+router.post("/vreate-permission", createPermission);
 
-router.put("/permission/:id", updatePermission);
+router.put("/update-permission/:id", updatePermission);
 
-router.delete("/permission/menu", removeByMenu);
+router.delete("/remove-permission/menu", removeByMenu);
 
-router.delete("/permission/:id", remove);
+router.delete("/remove-permission/:id", remove);
 
 module.exports = router;
