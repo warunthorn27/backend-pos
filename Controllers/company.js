@@ -70,6 +70,20 @@ exports.createCompany = async (req, res) => {
       comp_person_phone,
     });
 
+    const warehouseTemplates = [
+      { name: "Product Master", type: "productmaster" },
+      { name: "Stone", type: "stone" },
+      { name: "Semi-mount", type: "semimount" },
+      { name: "Others", type: "others" },
+    ];
+
+    const warehousesToSave = warehouseTemplates.map((template) => ({
+      warehouse_name: template.name,
+      warehouse_type: template.type,
+      comp_id: newCompany._id,
+    }));
+    await Warehouse.insertMany(warehousesToSave);
+
     const updatedUser = await User.findByIdAndUpdate(
       adminId,
       { comp_id: newCompany._id },
@@ -254,6 +268,8 @@ exports.removeOneCompany = async (req, res) => {
     await Warehouse.deleteMany({ comp_id: id });
 
     await Product.deleteMany({ comp_id: id });
+
+    await Warehouse.deleteMany({ comp_id: id })
 
     await Company.findByIdAndDelete(id);
 

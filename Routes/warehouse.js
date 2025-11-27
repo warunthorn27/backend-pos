@@ -1,22 +1,24 @@
 const express = require("express");
 const router = express.Router();
 
+const { auth, adminCheck } = require("../Middleware/auth");
+
 const {
-  createWarehouse,
+  // createWarehouse,
   list,
   getOneWarehouse,
-  removeOneWarehouse,
-  updateWarehouse,
+  // removeOneWarehouse,
+  // updateWarehouse,
 } = require("../Controllers/warehouse");
 
-router.get("/warehouse", list);
+router.get("/warehouse",auth, list);
 
 router.get("/warehouse/:id", getOneWarehouse);
 
-router.post("/warehouse", createWarehouse);
+// router.post("/warehouse", auth,createWarehouse);
 
-router.put("/warehouse/:id", updateWarehouse);
+// router.put("/warehouse/:id", updateWarehouse);
 
-router.delete("/warehouse/:id", removeOneWarehouse);
+// router.delete("/warehouse/:id", removeOneWarehouse);
 
 module.exports = router;

@@ -15,6 +15,7 @@ const {
   removeAll,
   createUsersendEmail,
   changeStatus,
+  changeFirstPassword,
 } = require("../Controllers/user");
 
 router.get("/user", auth, list);
@@ -45,9 +46,11 @@ router.put(
   resetPassUserbyAdmin_send
 );
 
+router.put("/changefirstpassword-user/:id", auth, changeFirstPassword);
+
 router.put("/changestatus-user/:id", auth, adminCheck, changeStatus);
 
-router.delete("/user/:id", auth, adminCheck, remove); //cancel
+router.delete("/user/:id", remove); //cancel
 
 router.delete("/user", auth, adminCheck, removeAll); //cancel
 

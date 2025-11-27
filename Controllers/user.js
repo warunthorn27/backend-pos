@@ -16,7 +16,7 @@ exports.createUser = async (req, res) => {
       permissions,
     } = req.body;
 
-    if (!user_name || !user_password || !comp_id || !user_email) {
+    if (!user_name || !user_password || !user_email) {
       return res
         .status(400)
         .json({ success: false, error: "Complete all fields." });
